@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TER-ACC - MCHLERN LISENSI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>MCHLERN LISENSI STUDIO</h1>
+    </header>
+    <nav>
+        <a href="index.html">TAMBAH</a>
+        <a href="list.html" class="active">TER-ACC</a>
+        <a href="scan.html">LOG PENCURI</a>
+        <a href="blacklist.html">BLACKLIST</a>
+    </nav>
+
+    <div class="container">
+        <h2>LIST ID YANG DIIZINKAN (ACC)</h2>
+        <div id="placeList"></div>
+    </div>
+
+    <script>
+        async function loadPlaces() {
+            const placeList = document.getElementById('placeList');
+            try {
+                const response = await fetch('/api/places');
+                const places = await response.json();
+                placeList.innerHTML = '';
+                
+                if (places.length === 0) {
+                    placeList.innerHTML = '<p>> KOSONG. BELUM ADA LISENSI DI-ACC.</p>';
+                    return;
+                }
+
+                places.forEach(id => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.innerHTML = `
+                        <span>ID: <strong>${id}</strong></span>
+                        <button onclick="removePlace('${id}')">CABUT (HAPUS)</button>
+                    `;
+                    placeList.appendChild(div);
+                });
+            } catch (err) {
+                placeList.innerHTML = '<p>> ERROR MEMUAT DATA.</p>';
+            }
+        }
+
+        async function removePlace(id) {
+            if (!confirm(`Cabut lisensi untuk ID ${id} ini?`)) return;
+            try {
+                await fetch(`/api/places/${id}`, { method: 'DELETE' });
+                loadPlaces();
+            } catch (err) { alert('> GAGAL MENGHAPUS.'); }
+        }
+
+        loadPlaces();
+    </script>
+</body>
+</html>
